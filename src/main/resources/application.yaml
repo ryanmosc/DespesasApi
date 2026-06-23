@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: despesas
+
+  datasource:
+    url: jdbc:postgresql://186.249.34.150:5432/despesas
+    username: postgres
+    password: q1w2e3
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: America/Sao_Paulo
+
+  jackson:
+    time-zone: America/Sao_Paulo
