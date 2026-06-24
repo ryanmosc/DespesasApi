@@ -4,6 +4,7 @@ import dispesas.com.Repository.DespesaRepository;
 import dispesas.com.dto.dashboardDto.ResumoCategoriaResponse;
 import dispesas.com.dto.dashboardDto.ResumoMensalResponse;
 import dispesas.com.dto.dashboardDto.SaldoResponse;
+import dispesas.com.dto.despesaDto.ComparativoMensalResponseDTO;
 import dispesas.com.dto.despesaDto.GastosPorMesDTO;
 import dispesas.com.dto.despesaDto.Top5CategoriasMesDTO;
 import dispesas.com.dto.despesaDto.Top5GastosMesDTO;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -79,5 +81,49 @@ public class ResumoService {
                         (BigDecimal) r[1]
                 ))
                 .toList();
+    }
+
+
+
+    public ComparativoMensalResponseDTO compararMeses(
+            Integer mesA, Integer anoA,
+            Integer mesB, Integer anoB
+    ) {
+        // Período A
+        BigDecimal despesasA = despesaRepository.sumByTypeAndMesAndAno(Type.DESPESA, mesA, anoA);
+        BigDecimal receitasA = despesaRepository.sumByTypeAndMesAndAno(Type.RECEITA, mesA, anoA);
+        BigDecimal saldoA = receitasA.subtract(despesasA);
+
+        // Período B
+        BigDecimal despesasB = despesaRepository.sumByTypeAndMesAndAno(Type.DESPESA, mesB, anoB);
+        BigDecimal receitasB = despesaRepository.sumByTypeAndMesAndAno(Type.RECEITA, mesB, anoB);
+        BigDecimal saldoB = receitasB.subtract(despesasB);
+
+        // Diferenças absolutas (B - A)
+        BigDecimal diferencaDespesas = despesasB.subtract(despesasA);
+        BigDecimal diferencaReceitas = receitasB.subtract(receitasA);
+        BigDecimal diferencaSaldo = saldoB.subtract(saldoA);
+
+        // Variação percentual — evita divisão por zero
+        BigDecimal variacaoDespesas = calcularVariacao(despesasA, despesasB);
+        BigDecimal variacaoReceitas = calcularVariacao(receitasA, receitasB);
+
+        return new ComparativoMensalResponseDTO(
+                mesA, anoA, despesasA, receitasA, saldoA,
+                mesB, anoB, despesasB, receitasB, saldoB,
+                diferencaDespesas, diferencaReceitas, diferencaSaldo,
+                variacaoDespesas, variacaoReceitas
+        );
+    }
+
+    // Calcula quanto B variou em relação a A em percentual
+    private BigDecimal calcularVariacao(BigDecimal anterior, BigDecimal atual) {
+        if (anterior == null || anterior.compareTo(BigDecimal.ZERO) == 0) {
+            return null; // evita divisão por zero — sem base de comparação
+        }
+        return atual.subtract(anterior)
+                .divide(anterior, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }
