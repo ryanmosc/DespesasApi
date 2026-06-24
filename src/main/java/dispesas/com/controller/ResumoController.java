@@ -3,6 +3,7 @@ package dispesas.com.controller;
 import dispesas.com.dto.dashboardDto.ResumoCategoriaResponse;
 import dispesas.com.dto.dashboardDto.ResumoMensalResponse;
 import dispesas.com.dto.dashboardDto.SaldoResponse;
+import dispesas.com.dto.despesaDto.ComparativoMensalResponseDTO;
 import dispesas.com.dto.despesaDto.GastosPorMesDTO;
 import dispesas.com.dto.despesaDto.Top5CategoriasMesDTO;
 import dispesas.com.dto.despesaDto.Top5GastosMesDTO;
@@ -62,5 +63,15 @@ public class ResumoController {
             @RequestParam Integer ano
     ) {
         return ResponseEntity.ok(resumoService.listarTop5CategoriasMes(mes, ano));
+    }
+
+    @GetMapping("/resumo/comparativo")
+    public ResponseEntity<ComparativoMensalResponseDTO> compararMeses(
+            @RequestParam Integer mesA,
+            @RequestParam Integer anoA,
+            @RequestParam Integer mesB,
+            @RequestParam Integer anoB
+    ) {
+        return ResponseEntity.ok(resumoService.compararMeses(mesA, anoA, mesB, anoB));
     }
 }
