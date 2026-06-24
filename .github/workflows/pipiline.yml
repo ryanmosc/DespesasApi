@@ -16,7 +16,7 @@ jobs:
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build da imagem
-        run: docker build -t rryanmosc/despesas-api:${{ github.run_number }} .
+        run: docker build -t ryanmosc/despesas-api:${{ github.run_number }} .
 
       - name: Tag latest
         run: docker tag ryanmosc/despesas-api:${{ github.run_number }} ryanmosc/despesas-api:latest
