@@ -21,3 +21,7 @@ spring:
 
   jackson:
     time-zone: America/Sao_Paulo
+
+jwt:
+  secret: 198498184gergehtyumdfnrnytj55g54eh45thfdbn445t4t4514gg4grg4t84h8th1
+  expiration: 86400000
