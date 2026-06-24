@@ -1,0 +1,59 @@
+package dispesas.com.security.service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+@Service
+public class JwtService {
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration}")
+    private Long expiration;
+
+    // Gera o token com o email do usuário
+    public String gerarToken(UserDetails userDetails) {
+        return Jwts.builder()
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSecretKey())
+                .compact();
+    }
+
+    // Extrai o email do token
+    public String extrairEmail(String token) {
+        return extrairClaims(token).getSubject();
+    }
+
+    // Valida se o token pertence ao usuário e não está expirado
+    public boolean tokenValido(String token, UserDetails userDetails) {
+        String email = extrairEmail(token);
+        return email.equals(userDetails.getUsername()) && !tokenExpirado(token);
+    }
+
+    private boolean tokenExpirado(String token) {
+        return extrairClaims(token).getExpiration().before(new Date());
+    }
+
+    private Claims extrairClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    private SecretKey getSecretKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+}

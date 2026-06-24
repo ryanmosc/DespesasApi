@@ -73,6 +73,7 @@ public class DespesaService {
     public DespesaResponse criarDespesa(DespesaRequest request) {
         Despesa despesa = new Despesa(
                 null,
+                null,
                 request.description(),
                 request.value(),
                 request.type(),

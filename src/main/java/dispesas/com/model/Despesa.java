@@ -1,7 +1,9 @@
 package dispesas.com.model;
 
 import dispesas.com.model.enumModel.*;
+import dispesas.com.security.model.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,6 +21,11 @@ public class Despesa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull(message = "Erro: O usuario é obrigatório para realizar a despesa")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private User user;
 
     @Column(name = "description", nullable = false)
     private String description;
