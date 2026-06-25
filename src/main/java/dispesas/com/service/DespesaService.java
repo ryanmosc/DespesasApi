@@ -12,6 +12,9 @@ import dispesas.com.model.enumModel.Category;
 import dispesas.com.model.enumModel.PaymentMethod;
 import dispesas.com.model.enumModel.Status;
 import dispesas.com.model.enumModel.Type;
+import dispesas.com.security.config.SecurityUtil;
+import dispesas.com.security.model.User;
+import dispesas.com.security.utilSecurity.GetUserById;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ import java.util.List;
 public class DespesaService {
 
     private final DespesaRepository despesaRepository;
+    private final GetUserById getUserById;
 
 
 
@@ -71,9 +75,12 @@ public class DespesaService {
 
     @Transactional
     public DespesaResponse criarDespesa(DespesaRequest request) {
+    User user = getUserById.getUserById();
+
+
         Despesa despesa = new Despesa(
                 null,
-                null,
+                user,
                 request.description(),
                 request.value(),
                 request.type(),
