@@ -14,6 +14,7 @@ import java.util.List;
 public class DespesaSpecification {
 
     public static Specification<Despesa> filtrar(
+            Long userId,
             Type type,
             Category category,
             Status status,
@@ -22,6 +23,10 @@ public class DespesaSpecification {
     ) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(
+                    cb.equal(root.get("user").get("id"), userId)
+            );
 
             if (type != null)
                 predicates.add(cb.equal(root.get("type"), type));
