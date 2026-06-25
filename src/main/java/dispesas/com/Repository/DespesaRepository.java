@@ -30,13 +30,16 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
             SELECT COALESCE(SUM(d.value), 0)
             FROM Despesa d
             WHERE d.type = :type
+            AND d.user.id = :userId
             AND EXTRACT(MONTH FROM d.expenseDate) = :mes
             AND EXTRACT(YEAR FROM d.expenseDate) = :ano
+             
             """)
     BigDecimal sumByTypeAndMesAndAno(
             @Param("type") Type type,
             @Param("mes") Integer mes,
-            @Param("ano") Integer ano
+            @Param("ano") Integer ano,
+            @Param("userId") Long userId
     );
 
     // Soma agrupada por categoria em um mês/ano
@@ -44,13 +47,15 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
             SELECT d.category, SUM(d.value)
             FROM Despesa d
             WHERE d.type = 'DESPESA'
+            AND d.user.id = :userId
             AND EXTRACT(MONTH FROM d.expenseDate) = :mes
             AND EXTRACT(YEAR FROM d.expenseDate) = :ano
             GROUP BY d.category
             """)
     List<Object[]> sumByCategoriaAndMesAndAno(
             @Param("mes") Integer mes,
-            @Param("ano") Integer ano
+            @Param("ano") Integer ano,
+            @Param("userId") Long userId
     );
 
     // Soma total por tipo (para saldo geral)
@@ -58,8 +63,10 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
             SELECT COALESCE(SUM(d.value), 0)
             FROM Despesa d
             WHERE d.type = :type
+            AND d.user.id = :userId
             """)
-    BigDecimal sumByType(@Param("type") Type type);
+    BigDecimal sumByType(@Param("type") Type type,
+                         @Param("userId") Long userId);
 
 
 
@@ -70,10 +77,11 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
         SUM(value) AS total
     FROM despesas
     WHERE type = 'DESPESA'
-    GROUP BY ano, mes
-    ORDER BY ano, mes
+    AND usuario_id = :userId
+    GROUP BY EXTRACT(YEAR FROM expense_date), EXTRACT(MONTH FROM expense_date)
+    ORDER BY EXTRACT(YEAR FROM expense_date), EXTRACT(MONTH FROM expense_date)
 """, nativeQuery = true)
-    List<Object[]> gastosPorMes();
+    List<Object[]> gastosPorMes(@Param("userId") Long userId);
 
 
 
@@ -82,24 +90,28 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
     SELECT description, value, expense_date
     FROM despesas
     WHERE type = 'DESPESA'
+      AND usuario_id = :userId
       AND EXTRACT(YEAR FROM expense_date) = :ano
       AND EXTRACT(MONTH FROM expense_date) = :mes
     ORDER BY value DESC
     LIMIT 5
 """, nativeQuery = true)
-    List<Object[]> top5MaioresGastosMes(@Param("mes") Integer mes, @Param("ano") Integer ano);
+    List<Object[]> top5MaioresGastosMes(@Param("mes") Integer mes, @Param("ano") Integer ano, @Param("userId") Long userId
+    );
 
     @Query(value = """
     SELECT category, SUM(value) AS total
     FROM despesas
     WHERE type = 'DESPESA'
+      AND usuario_id = :userId
       AND EXTRACT(YEAR FROM expense_date) = :ano
       AND EXTRACT(MONTH FROM expense_date) = :mes
     GROUP BY category
     ORDER BY total DESC
     LIMIT 5
 """, nativeQuery = true)
-    List<Object[]> top5CategoriasMes(@Param("mes") Integer mes, @Param("ano") Integer ano);
+    List<Object[]> top5CategoriasMes(@Param("mes") Integer mes, @Param("ano") Integer ano, @Param("userId") Long userId
+    );
 
 
     @Query(value = """

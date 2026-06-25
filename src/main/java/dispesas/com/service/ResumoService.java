@@ -10,6 +10,7 @@ import dispesas.com.dto.despesaDto.Top5CategoriasMesDTO;
 import dispesas.com.dto.despesaDto.Top5GastosMesDTO;
 import dispesas.com.model.enumModel.Category;
 import dispesas.com.model.enumModel.Type;
+import dispesas.com.security.utilSecurity.GetUserById;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +23,21 @@ import java.util.List;
 public class ResumoService {
 
     private final DespesaRepository despesaRepository;
+    private final GetUserById getUserById;
 
     public ResumoMensalResponse resumoMensal(Integer mes, Integer ano) {
-        BigDecimal totalDespesas = despesaRepository.sumByTypeAndMesAndAno(Type.DESPESA, mes, ano);
-        BigDecimal totalReceitas = despesaRepository.sumByTypeAndMesAndAno(Type.RECEITA, mes, ano);
+        Long userId = getUserById.getUserById().getId();
+
+        BigDecimal totalDespesas = despesaRepository.sumByTypeAndMesAndAno(Type.DESPESA, mes, ano, userId);
+        BigDecimal totalReceitas = despesaRepository.sumByTypeAndMesAndAno(Type.RECEITA, mes, ano, userId);
         BigDecimal saldo = totalReceitas.subtract(totalDespesas);
 
         return new ResumoMensalResponse(mes, ano, totalDespesas, totalReceitas, saldo);
     }
 
     public List<ResumoCategoriaResponse> resumoPorCategoria(Integer mes, Integer ano) {
-        return despesaRepository.sumByCategoriaAndMesAndAno(mes, ano)
+        Long userId = getUserById.getUserById().getId();
+        return despesaRepository.sumByCategoriaAndMesAndAno(mes, ano, userId)
                 .stream()
                 .map(row -> new ResumoCategoriaResponse(
                         (Category) row[0],
@@ -42,8 +47,9 @@ public class ResumoService {
     }
 
     public SaldoResponse saldoGeral() {
-        BigDecimal totalReceitas = despesaRepository.sumByType(Type.RECEITA);
-        BigDecimal totalDespesas = despesaRepository.sumByType(Type.DESPESA);
+        Long userId = getUserById.getUserById().getId();
+        BigDecimal totalReceitas = despesaRepository.sumByType(Type.RECEITA, userId);
+        BigDecimal totalDespesas = despesaRepository.sumByType(Type.DESPESA, userId);
         BigDecimal saldo = totalReceitas.subtract(totalDespesas);
 
         return new SaldoResponse(totalReceitas, totalDespesas, saldo);
@@ -51,8 +57,8 @@ public class ResumoService {
 
 
     public List<GastosPorMesDTO> listarGastoPorMes() {
-
-        return despesaRepository.gastosPorMes()
+        Long userId = getUserById.getUserById().getId();
+        return despesaRepository.gastosPorMes(userId)
                 .stream()
                 .map(r -> new GastosPorMesDTO(
                         ((Number) r[0]).intValue(),
@@ -64,7 +70,8 @@ public class ResumoService {
 
 
     public List<Top5GastosMesDTO> listarTop5MaioresGastosMes(Integer mes, Integer ano) {
-        return despesaRepository.top5MaioresGastosMes(mes, ano)
+        Long userId = getUserById.getUserById().getId();
+        return despesaRepository.top5MaioresGastosMes(mes, ano, userId)
                 .stream()
                 .map(r -> new Top5GastosMesDTO(
                         (String) r[0],
@@ -74,7 +81,8 @@ public class ResumoService {
     }
 
     public List<Top5CategoriasMesDTO> listarTop5CategoriasMes(Integer mes, Integer ano) {
-        return despesaRepository.top5CategoriasMes(mes, ano)
+        Long userId = getUserById.getUserById().getId();
+        return despesaRepository.top5CategoriasMes(mes, ano, userId)
                 .stream()
                 .map(r -> new Top5CategoriasMesDTO(
                         r[0].toString(),
@@ -86,17 +94,20 @@ public class ResumoService {
 
 
     public ComparativoMensalResponseDTO compararMeses(
+
             Integer mesA, Integer anoA,
             Integer mesB, Integer anoB
     ) {
+
+        Long userId = getUserById.getUserById().getId();
         // Período A
-        BigDecimal despesasA = despesaRepository.sumByTypeAndMesAndAno(Type.DESPESA, mesA, anoA);
-        BigDecimal receitasA = despesaRepository.sumByTypeAndMesAndAno(Type.RECEITA, mesA, anoA);
+        BigDecimal despesasA = despesaRepository.sumByTypeAndMesAndAno(Type.DESPESA, mesA, anoA, userId);
+        BigDecimal receitasA = despesaRepository.sumByTypeAndMesAndAno(Type.RECEITA, mesA, anoA, userId);
         BigDecimal saldoA = receitasA.subtract(despesasA);
 
         // Período B
-        BigDecimal despesasB = despesaRepository.sumByTypeAndMesAndAno(Type.DESPESA, mesB, anoB);
-        BigDecimal receitasB = despesaRepository.sumByTypeAndMesAndAno(Type.RECEITA, mesB, anoB);
+        BigDecimal despesasB = despesaRepository.sumByTypeAndMesAndAno(Type.DESPESA, mesB, anoB, userId);
+        BigDecimal receitasB = despesaRepository.sumByTypeAndMesAndAno(Type.RECEITA, mesB, anoB, userId);
         BigDecimal saldoB = receitasB.subtract(despesasB);
 
         // Diferenças absolutas (B - A)
