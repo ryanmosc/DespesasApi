@@ -1,6 +1,7 @@
 package dispesas.com.service;
 
 import dispesas.com.Repository.DespesaRepository;
+import dispesas.com.Repository.UserRepository;
 import dispesas.com.dto.comprovanteDto.ComprovanteResponse;
 import dispesas.com.dto.despesaDto.DespesaResponse;
 import dispesas.com.dto.despesaDto.DespesaRequest;
@@ -33,6 +34,7 @@ public class DespesaService {
 
     private final DespesaRepository despesaRepository;
     private final GetUserById getUserById;
+    private final UserRepository userRepository;
 
 
 
@@ -190,12 +192,17 @@ public class DespesaService {
     public DespesaResponse duplicarDespesa(Long idDespesa) {
         Long  userId = getUserById.getUserById().getId();
         Despesa despesa = despesaRepository.findById(idDespesa).orElseThrow(() -> new RuntimeException("Despesa não encontrada com o id"));
+
        if (!despesa.getUser().getId().equals(userId)){
            throw new RuntimeException("Erro: Candidato não é o correto");
        }
 
-        Despesa despesaDuplicada = new Despesa();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+
+        Despesa despesaDuplicada = new Despesa();
+        despesaDuplicada.setUser(user);
         despesaDuplicada.setDescription(despesa.getDescription());
         despesaDuplicada.setValue(despesa.getValue());
         despesaDuplicada.setType(despesa.getType());
