@@ -180,8 +180,11 @@ public class DespesaService {
             LocalDate dataInicio,
             LocalDate dataFim
     ) {
+
+        Long userId = getUserById.getUserById().getId();
+
         return despesaRepository
-                .findAll(DespesaSpecification.filtrar(type, category, status, dataInicio, dataFim))
+                .findAll(DespesaSpecification.filtrar(userId, type, category, status, dataInicio, dataFim))
                 .stream()
                 .map(this::toResponse)
                 .toList();
