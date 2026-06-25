@@ -21,7 +21,7 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
 
     Optional<Despesa> findByIdAndUserId(Long id, Long userId);
 
-    Void deleteByIdAndUserId(Long id, Long userId);
+    void deleteByIdAndUserId(Long id, Long userId);
 
     boolean existsByIdAndUserId(Long id, Long userId);
 
