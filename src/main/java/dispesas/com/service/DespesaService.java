@@ -107,7 +107,8 @@ public class DespesaService {
 
     //Metodo para listar despesas por ID
     public DespesaResponse listarDespesaId(Long id){
-        return despesaRepository.findById(id)
+        Long  userId = getUserById.getUserById().getId();
+        return despesaRepository.findByIdAndUserId(id, userId)
                 .map(this::toResponse)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
     }
@@ -116,45 +117,55 @@ public class DespesaService {
     @Transactional
     //Metodo para atualizar uma despesa
     public void atualizarDespesa(Long id, DespesaUpdateRequest request){
+        Long  userId = getUserById.getUserById().getId();
         Despesa despesa = despesaRepository.findById(id).orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+        if(despesa.getUser().getId().equals(userId)){
+            if (request.description() != null)
+                despesa.setDescription(request.description());
 
-        if (request.description() != null)
-            despesa.setDescription(request.description());
+            if (request.value() != null)
+                despesa.setValue(request.value());
 
-        if (request.value() != null)
-            despesa.setValue(request.value());
+            if (request.category() != null)
+                despesa.setCategory(request.category());
 
-        if (request.category() != null)
-            despesa.setCategory(request.category());
+            if (request.paymentMethod() != null)
+                despesa.setPaymentMethod(request.paymentMethod());
 
-        if (request.paymentMethod() != null)
-            despesa.setPaymentMethod(request.paymentMethod());
+            if (request.status() != null)
+                despesa.setStatus(request.status());
 
-        if (request.status() != null)
-            despesa.setStatus(request.status());
+            if (request.expenseDate() != null)
+                despesa.setExpenseDate(request.expenseDate());
 
-        if (request.expenseDate() != null)
-            despesa.setExpenseDate(request.expenseDate());
+            if (request.installments() != null)
+                despesa.setInstallments(request.installments());
 
-        if (request.installments() != null)
-            despesa.setInstallments(request.installments());
+            if (request.installmentNumber() != null)
+                despesa.setInstallmentNumber(request.installmentNumber());
 
-        if (request.installmentNumber() != null)
-            despesa.setInstallmentNumber(request.installmentNumber());
+            if (request.recurrent() != null)
+                despesa.setRecurrent(request.recurrent());
 
-        if (request.recurrent() != null)
-            despesa.setRecurrent(request.recurrent());
+            despesaRepository.save(despesa);
+        }
+        else {
+            throw new RuntimeException("Erro: Você não é dono desta despesa");
+        }
 
-        despesaRepository.save(despesa);
+
     }
 
 
     @Transactional
-    public void deletarDespesa(Long id){
-        if (!despesaRepository.existsById(id)){
+    public void deletarDespesa(Long id) {
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        if (!despesaRepository.existsByIdAndUserId(id, userId)) {
             throw new EntityNotFoundException("Despesa não encontrada");
         }
-        despesaRepository.deleteById(id);
+
+        despesaRepository.deleteByIdAndUserId(id, userId);
     }
 
 
@@ -177,7 +188,12 @@ public class DespesaService {
 
     @Transactional
     public DespesaResponse duplicarDespesa(Long idDespesa) {
+        Long  userId = getUserById.getUserById().getId();
         Despesa despesa = despesaRepository.findById(idDespesa).orElseThrow(() -> new RuntimeException("Despesa não encontrada com o id"));
+       if (!despesa.getUser().getId().equals(userId)){
+           throw new RuntimeException("Erro: Candidato não é o correto");
+       }
+
         Despesa despesaDuplicada = new Despesa();
 
         despesaDuplicada.setDescription(despesa.getDescription());
@@ -198,7 +214,8 @@ public class DespesaService {
 
 
     public List<DespesasComParcelasEmAbertoDTO> despesasComParcelasEmAberto(){
-        return despesaRepository.despesasComParcelasEmAberto()
+        Long  userId = getUserById.getUserById().getId();
+        return despesaRepository.despesasComParcelasEmAberto(userId)
                 .stream()
                 .map(r -> new DespesasComParcelasEmAbertoDTO(
                         ((Number) r[0]).longValue(),
