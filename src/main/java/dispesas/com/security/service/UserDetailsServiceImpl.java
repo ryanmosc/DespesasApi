@@ -1,6 +1,7 @@
 package dispesas.com.security.service;
 
 import dispesas.com.Repository.UserRepository;
+import dispesas.com.security.model.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +20,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmailCandidato(email)
-                .map(user -> new org.springframework.security.core.userdetails.User(
+                .map(user -> new CustomUserDetails(
+                        user.getId(),
                         user.getEmailCandidato(),
                         user.getSenha(),
                         List.of(new SimpleGrantedAuthority(user.getRole().name()))
