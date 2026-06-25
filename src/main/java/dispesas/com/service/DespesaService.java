@@ -76,8 +76,6 @@ public class DespesaService {
     @Transactional
     public DespesaResponse criarDespesa(DespesaRequest request) {
     User user = getUserById.getUserById();
-
-
         Despesa despesa = new Despesa(
                 null,
                 user,
@@ -103,7 +101,8 @@ public class DespesaService {
 
     //Metodo para listar todas as despesas
     public Page<DespesaResponse> listarDespesas(Pageable pageable){
-        return despesaRepository.findAll(pageable).map(this::toResponse);
+        Long  userId = getUserById.getUserById().getId();
+        return despesaRepository.findByUserId(userId, pageable).map(this::toResponse);
     }
 
     //Metodo para listar despesas por ID
