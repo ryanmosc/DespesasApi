@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpecificationExecutor<Despesa> {
 
@@ -18,6 +19,11 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
 
     Page<Despesa> findByUserId(Long userId, Pageable pageable);
 
+    Optional<Despesa> findByIdAndUserId(Long id, Long userId);
+
+    Void deleteByIdAndUserId(Long id, Long userId);
+
+    boolean existsByIdAndUserId(Long id, Long userId);
 
     // Soma total por tipo em um mês/ano
     @Query("""
@@ -99,8 +105,8 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
     @Query(value = """
     SELECT id, description, value, payment_method, installments, installment_number
     FROM despesas
-    WHERE  installments > 0
+    WHERE  installments > 0 AND usuario_id = :userId
     ORDER BY installments DESC
 """, nativeQuery = true)
-    List<Object[]> despesasComParcelasEmAberto();
+    List<Object[]> despesasComParcelasEmAberto(@Param("userId") Long userId);
 }
