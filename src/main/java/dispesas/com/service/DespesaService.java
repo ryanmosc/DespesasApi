@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,6 @@ public class DespesaService {
     private final DespesaRepository despesaRepository;
     private final GetUserById getUserById;
     private final UserRepository userRepository;
-
 
 
     private ComprovanteResponse toComprovanteResponse(Comprovante comprovante) {
@@ -76,40 +76,68 @@ public class DespesaService {
     }
 
     @Transactional
-    public DespesaResponse criarDespesa(DespesaRequest request) {
-    User user = getUserById.getUserById();
-        Despesa despesa = new Despesa(
-                null,
-                user,
-                request.description(),
-                request.value(),
-                request.type(),
-                request.category(),
-                request.paymentMethod(),
-                request.status(),
-                request.expenseDate(),
-                request.installments(),
-                request.installmentNumber(),
-                request.recurrent(),
-                List.of(),
-                null,
-                null
+    public List<DespesaResponse> criarDespesa(DespesaRequest request) {
+        User user = getUserById.getUserById();
+
+        // Sem parcelamento — salva normalmente
+        if (request.installments() == null || request.installments() <= 1) {
+            Despesa despesa = new Despesa(
+                    null, user,
+                    request.description(),
+                    request.value(),
+                    request.type(),
+                    request.category(),
+                    request.paymentMethod(),
+                    request.status(),
+                    request.expenseDate(),
+                    1, 1,
+                    request.recurrent(),
+                    List.of(), null, null
+            );
+            return List.of(toResponse(despesaRepository.save(despesa)));
+        }
+
+        // Parcelado — gera uma despesa por parcela
+        BigDecimal valorParcela = request.value().divide(
+                BigDecimal.valueOf(request.installments()),
+                2,
+                RoundingMode.HALF_UP
         );
 
-        Despesa salva = despesaRepository.save(despesa);
+        List<Despesa> parcelas = new ArrayList<>();
+        for (int i = 1; i <= request.installments(); i++) {
+            Despesa parcela = new Despesa(
+                    null, user,
+                    request.description() + " (" + i + "/" + request.installments() + ")",
+                    valorParcela,
+                    request.type(),
+                    request.category(),
+                    request.paymentMethod(),
+                    Status.PENDENTE,                          // sempre começa pendente
+                    request.expenseDate().plusMonths(i - 1), // incrementa mês
+                    request.installments(),
+                    i,
+                    request.recurrent(),
+                    List.of(), null, null
+            );
+            parcelas.add(parcela);
+        }
 
-        return toResponse(salva);
+        return despesaRepository.saveAll(parcelas)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     //Metodo para listar todas as despesas
-    public Page<DespesaResponse> listarDespesas(Pageable pageable){
-        Long  userId = getUserById.getUserById().getId();
+    public Page<DespesaResponse> listarDespesas(Pageable pageable) {
+        Long userId = getUserById.getUserById().getId();
         return despesaRepository.findByUserId(userId, pageable).map(this::toResponse);
     }
 
     //Metodo para listar despesas por ID
-    public DespesaResponse listarDespesaId(Long id){
-        Long  userId = getUserById.getUserById().getId();
+    public DespesaResponse listarDespesaId(Long id) {
+        Long userId = getUserById.getUserById().getId();
         return despesaRepository.findByIdAndUserId(id, userId)
                 .map(this::toResponse)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
@@ -118,10 +146,10 @@ public class DespesaService {
 
     @Transactional
     //Metodo para atualizar uma despesa
-    public void atualizarDespesa(Long id, DespesaUpdateRequest request){
-        Long  userId = getUserById.getUserById().getId();
+    public void atualizarDespesa(Long id, DespesaUpdateRequest request) {
+        Long userId = getUserById.getUserById().getId();
         Despesa despesa = despesaRepository.findById(id).orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
-        if(despesa.getUser().getId().equals(userId)){
+        if (despesa.getUser().getId().equals(userId)) {
             if (request.description() != null)
                 despesa.setDescription(request.description());
 
@@ -150,8 +178,7 @@ public class DespesaService {
                 despesa.setRecurrent(request.recurrent());
 
             despesaRepository.save(despesa);
-        }
-        else {
+        } else {
             throw new RuntimeException("Erro: Você não é dono desta despesa");
         }
 
@@ -169,7 +196,6 @@ public class DespesaService {
 
         despesaRepository.deleteByIdAndUserId(id, userId);
     }
-
 
 
     //Filtros
@@ -193,12 +219,12 @@ public class DespesaService {
 
     @Transactional
     public DespesaResponse duplicarDespesa(Long idDespesa) {
-        Long  userId = getUserById.getUserById().getId();
+        Long userId = getUserById.getUserById().getId();
         Despesa despesa = despesaRepository.findById(idDespesa).orElseThrow(() -> new RuntimeException("Despesa não encontrada com o id"));
 
-       if (!despesa.getUser().getId().equals(userId)){
-           throw new RuntimeException("Erro: Candidato não é o correto");
-       }
+        if (!despesa.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Erro: Candidato não é o correto");
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -223,8 +249,8 @@ public class DespesaService {
     }
 
 
-    public List<DespesasComParcelasEmAbertoDTO> despesasComParcelasEmAberto(){
-        Long  userId = getUserById.getUserById().getId();
+    public List<DespesasComParcelasEmAbertoDTO> despesasComParcelasEmAberto() {
+        Long userId = getUserById.getUserById().getId();
         return despesaRepository.despesasComParcelasEmAberto(userId)
                 .stream()
                 .map(r -> new DespesasComParcelasEmAbertoDTO(
@@ -234,7 +260,6 @@ public class DespesaService {
                         PaymentMethod.valueOf(r[3].toString()),
                         r[4] == null ? 0 : ((Number) r[4]).intValue(),
                         r[5] == null ? 0 : ((Number) r[5]).intValue()
-
                 ))
                 .toList();
     }

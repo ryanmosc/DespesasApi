@@ -25,16 +25,16 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
 
     boolean existsByIdAndUserId(Long id, Long userId);
 
-    // Soma total por tipo em um mês/ano
+    // Soma total por tipo em um mês/ano — só conta PAGO
     @Query("""
-            SELECT COALESCE(SUM(d.value), 0)
-            FROM Despesa d
-            WHERE d.type = :type
-            AND d.user.id = :userId
-            AND EXTRACT(MONTH FROM d.expenseDate) = :mes
-            AND EXTRACT(YEAR FROM d.expenseDate) = :ano
-             
-            """)
+        SELECT COALESCE(SUM(d.value), 0)
+        FROM Despesa d
+        WHERE d.type = :type
+        AND d.user.id = :userId
+        AND (d.installments <= 1 OR d.status = 'PAGO')
+        AND EXTRACT(MONTH FROM d.expenseDate) = :mes
+        AND EXTRACT(YEAR FROM d.expenseDate) = :ano
+        """)
     BigDecimal sumByTypeAndMesAndAno(
             @Param("type") Type type,
             @Param("mes") Integer mes,
@@ -58,13 +58,15 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
             @Param("userId") Long userId
     );
 
-    // Soma total por tipo (para saldo geral)
+
+    // Soma total por tipo (saldo geral) — só conta PAGO
     @Query("""
-            SELECT COALESCE(SUM(d.value), 0)
-            FROM Despesa d
-            WHERE d.type = :type
-            AND d.user.id = :userId
-            """)
+        SELECT COALESCE(SUM(d.value), 0)
+        FROM Despesa d
+        WHERE d.type = :type
+        AND d.user.id = :userId
+        AND (d.installments <= 1 OR d.status = 'PAGO')
+        """)
     BigDecimal sumByType(@Param("type") Type type,
                          @Param("userId") Long userId);
 
@@ -115,10 +117,18 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
 
 
     @Query(value = """
-    SELECT id, description, value, payment_method, installments, installment_number
+    SELECT
+        MIN(id) AS id,
+        SPLIT_PART(MIN(description), ' (', 1) AS description,
+        SUM(value) AS total,
+        payment_method,
+        installments,
+        COUNT(CASE WHEN status = 'PAGO' THEN 1 END) AS parcelas_pagas
     FROM despesas
-    WHERE  installments > 0 AND usuario_id = :userId
-    ORDER BY installments DESC
+    WHERE installments > 1
+    AND usuario_id = :userId
+    GROUP BY SPLIT_PART(description, ' (', 1), payment_method, installments
+    ORDER BY parcelas_pagas ASC
 """, nativeQuery = true)
     List<Object[]> despesasComParcelasEmAberto(@Param("userId") Long userId);
 }
