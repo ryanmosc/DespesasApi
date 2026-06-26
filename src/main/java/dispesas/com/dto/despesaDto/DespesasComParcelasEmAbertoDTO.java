@@ -11,6 +11,6 @@ public record DespesasComParcelasEmAbertoDTO(
         BigDecimal value,
         PaymentMethod paymentMethod,
         Integer installments,
-        Integer installmentNumber
+        Integer parcelasPagas
 ) {
 }

@@ -28,9 +28,8 @@ public class DespesaController {
     private final DespesaService despesaService;
 
     @PostMapping
-    public ResponseEntity<DespesaResponse> criarDespesa(@RequestBody DespesaRequest request){
-        DespesaResponse response = despesaService.criarDespesa(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<List<DespesaResponse>> criarDespesa(@RequestBody DespesaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(despesaService.criarDespesa(request));
     }
 
     @GetMapping
