@@ -34,4 +34,11 @@ public class InvestimentoController {
         InvestimentoResponse response = service.listarInvestimentoPorId(id);
         return ResponseEntity.ok(response);
     }
+
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<InvestimentoResponse> atualziarInvestimento(@RequestBody InvestimentosRequest request, @PathVariable Long id){
+        service.atualizarInvestimento(request, id);
+        return ResponseEntity.noContent().build();
+    }
 }
