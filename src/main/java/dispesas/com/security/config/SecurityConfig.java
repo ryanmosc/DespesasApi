@@ -84,12 +84,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/despesas/top-5-categorias").authenticated()
 
                         // =============================================
-                        .requestMatchers(HttpMethod.GET, "/api/investimentos").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/investimentos").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/investimentos/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/investimentos/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/investimentos/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/investimentos/status-investimento/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/investimentos").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/investimentos").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/investimentos/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/investimentos/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/investimentos/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/investimentos/status-investimento/**").authenticated()
 
 
                         // Qualquer outra rota não mapeada — bloqueia
