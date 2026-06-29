@@ -5,6 +5,7 @@ import dispesas.com.Repository.UserRepository;
 import dispesas.com.dto.investimentoDto.InvestimentoResponse;
 import dispesas.com.dto.investimentoDto.InvestimentosRequest;
 import dispesas.com.model.Investimento;
+import dispesas.com.model.enumModel.StatusInvestimento;
 import dispesas.com.security.model.User;
 import dispesas.com.security.utilSecurity.GetUserById;
 import jakarta.transaction.Transactional;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -108,5 +110,17 @@ public class InvestimentoService {
     }
     investimento.setAtualizadoEm(LocalDateTime.now());
     investimentoRepository.save(investimento);
+  }
+
+  @Transactional
+  public void modificarStatus(StatusInvestimento statusInvestimento, Long idInvestimento){
+      Investimento investimento = investimentoRepository.findById(idInvestimento).orElseThrow(() -> new RuntimeException("Erro: Investimento inexistente"));
+      investimento.setStatus(statusInvestimento);
+      investimentoRepository.save(investimento);
+  }
+
+  @Transactional
+  public void deletarInvestimento(Long idInvestimento){
+        investimentoRepository.deleteById(idInvestimento);
   }
 }
