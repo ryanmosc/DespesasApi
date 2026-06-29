@@ -84,6 +84,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/despesas/top-5-categorias").authenticated()
 
                         // =============================================
+                        .requestMatchers(HttpMethod.GET, "/api/investimentos").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/investimentos").permitAll()
+
+
                         // Qualquer outra rota não mapeada — bloqueia
                         // =============================================
                         .anyRequest().denyAll()
