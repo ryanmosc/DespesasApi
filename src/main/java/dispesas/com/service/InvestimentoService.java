@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class InvestimentoService {
@@ -76,5 +78,35 @@ public class InvestimentoService {
                 .orElseThrow(() -> new RuntimeException("Investimento não encontrado"));
     }
 
+    @Transactional
+    public void atualizarInvestimento(InvestimentosRequest request, Long investimentoId) {
+    Investimento investimento = investimentoRepository.findById(investimentoId).orElseThrow(() -> new RuntimeException("Erro: Investimento não encontrado"));
 
+    if (request.nome() != null) {
+        investimento.setNome(request.nome());
+    }
+    if (request.tipo() != null) {
+        investimento.setTipo(request.tipo());
+    }
+    if (request.valorInicial() != null) {
+        investimento.setValorInicial(request.valorInicial());
+    }
+    if (request.valorAtual() != null) {
+        investimento.setValorAtual(request.valorAtual());
+    }
+    if (request.dataInicio() != null) {
+        investimento.setDataInicio(request.dataInicio());
+    }
+    if (request.dataVencimento() != null) {
+        investimento.setDataVencimento(request.dataVencimento());
+    }
+    if (request.instituicao() != null) {
+        investimento.setInstituicao(request.instituicao());
+    }
+    if (request.status() != null) {
+        investimento.setStatus(request.status());
+    }
+    investimento.setAtualizadoEm(LocalDateTime.now());
+    investimentoRepository.save(investimento);
+  }
 }
