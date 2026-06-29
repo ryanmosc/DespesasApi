@@ -2,6 +2,7 @@ package dispesas.com.controller;
 
 import dispesas.com.dto.investimentoDto.InvestimentoResponse;
 import dispesas.com.dto.investimentoDto.InvestimentosRequest;
+import dispesas.com.model.enumModel.StatusInvestimento;
 import dispesas.com.service.InvestimentoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,18 @@ public class InvestimentoController {
     @PatchMapping("/{id}")
     public ResponseEntity<InvestimentoResponse> atualziarInvestimento(@RequestBody InvestimentosRequest request, @PathVariable Long id){
         service.atualizarInvestimento(request, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarInvestimento(@PathVariable Long id){
+        service.deletarInvestimento(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/status-investimento/{id}")
+    public ResponseEntity<Void> modificarStatusInvestimento(@PathVariable Long id, @RequestParam StatusInvestimento statusInvestimento){
+        service.modificarStatus(statusInvestimento, id);
         return ResponseEntity.noContent().build();
     }
 }

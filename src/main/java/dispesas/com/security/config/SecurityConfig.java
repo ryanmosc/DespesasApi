@@ -88,6 +88,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/investimentos").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/investimentos/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/investimentos/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/investimentos/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/investimentos/status-investimento/**").permitAll()
 
 
                         // Qualquer outra rota não mapeada — bloqueia
