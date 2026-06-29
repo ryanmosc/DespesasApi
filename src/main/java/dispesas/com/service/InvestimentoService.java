@@ -46,9 +46,7 @@ public class InvestimentoService {
     @Transactional
     public InvestimentoResponse criarInvestimento(InvestimentosRequest request){
 
-        //Usuario Mocado para testes, depois alterar
-        User user = userRepository.findById(1L)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        User user = getUserById.getUserById();
 
         Investimento investimento = new Investimento(
                 null,
@@ -71,11 +69,13 @@ public class InvestimentoService {
 
 
     public Page<InvestimentoResponse> listarInvestimentos(Pageable pageable){
-        return investimentoRepository.findAll(pageable).map(this::investimentoResponse);
+        Long userId = getUserById.getUserById().getId();
+        return investimentoRepository.findByUsuarioId(userId, pageable).map(this::investimentoResponse);
     }
 
     public InvestimentoResponse listarInvestimentoPorId(Long idInvestimento){
-        return investimentoRepository.findById(idInvestimento)
+        Long userId = getUserById.getUserById().getId();
+        return investimentoRepository.findByIdAndUsuarioId(idInvestimento, userId)
                 .map(this::investimentoResponse)
                 .orElseThrow(() -> new RuntimeException("Investimento não encontrado"));
     }
@@ -83,6 +83,11 @@ public class InvestimentoService {
     @Transactional
     public void atualizarInvestimento(InvestimentosRequest request, Long investimentoId) {
     Investimento investimento = investimentoRepository.findById(investimentoId).orElseThrow(() -> new RuntimeException("Erro: Investimento não encontrado"));
+    Long userId = getUserById.getUserById().getId();
+
+    if (!investimento.getUsuario().getId().equals(userId)){
+        throw new RuntimeException("Erro: Usuario invalido");
+    }
 
     if (request.nome() != null) {
         investimento.setNome(request.nome());
@@ -115,12 +120,18 @@ public class InvestimentoService {
   @Transactional
   public void modificarStatus(StatusInvestimento statusInvestimento, Long idInvestimento){
       Investimento investimento = investimentoRepository.findById(idInvestimento).orElseThrow(() -> new RuntimeException("Erro: Investimento inexistente"));
+      Long userId = getUserById.getUserById().getId();
+
+      if (!investimento.getUsuario().getId().equals(userId)){
+          throw new RuntimeException("Erro: Usuario invalido");
+      }
       investimento.setStatus(statusInvestimento);
       investimentoRepository.save(investimento);
   }
 
   @Transactional
   public void deletarInvestimento(Long idInvestimento){
-        investimentoRepository.deleteById(idInvestimento);
+        Long userId = getUserById.getUserById().getId();
+        investimentoRepository.deleteByIdAndUsuarioId(idInvestimento, userId);
   }
 }
