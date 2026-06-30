@@ -5,6 +5,7 @@ import dispesas.com.security.Enums.Role;
 import dispesas.com.security.dto.UserDTO;
 import dispesas.com.security.dto.UserResponseDTO;
 import dispesas.com.security.model.User;
+import dispesas.com.utils.EmailSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailSender emailSender;
 
     private UserResponseDTO toResponseUser(User user){
         return new UserResponseDTO(
@@ -40,6 +42,7 @@ public class UserService {
         user.setSenha(passwordEncoder.encode(dto.senha()));
         user.setRole(Role.ROLE_ADMIN);
         userRepository.save(user);
+        emailSender.enviarEmail(user.getEmailCandidato(), "Obrigado por usar o DisPesas. Seu cadastro foi concluido com sucesso.", "Obrigado " + user.getNomeCompleto());
 
         return toResponseUser(user);
     }

@@ -45,10 +45,12 @@ public class AuthController {
                 userDetails.getAuthorities().iterator().next().getAuthority()
         ));
     }
-
+/*
     @DeleteMapping("/usuario/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         userService.deletarUsuario(id);
         return ResponseEntity.noContent().build();
     }
+
+    */
 }
