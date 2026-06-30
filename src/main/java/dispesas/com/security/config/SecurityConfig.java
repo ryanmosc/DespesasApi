@@ -82,7 +82,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/despesas/relatorios/gastos-por-mes").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/despesas/top-5-gastos").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/despesas/top-5-categorias").authenticated()
-
+                        // =============================================
+                        // Metodos de investimento
                         // =============================================
                         .requestMatchers(HttpMethod.GET, "/api/investimentos").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/investimentos").authenticated()
@@ -90,6 +91,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/investimentos/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/investimentos/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/investimentos/status-investimento/**").authenticated()
+
+
+                        // =============================================
+                        // Troca de senha
+                        // =============================================
+                        .requestMatchers(HttpMethod.POST, "/api/auth/solicitar-codigo").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/auth/trocar-senha").authenticated()
 
 
                         // Qualquer outra rota não mapeada — bloqueia
