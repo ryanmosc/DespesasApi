@@ -9,10 +9,7 @@ import dispesas.com.dto.despesaDto.DespesaUpdateRequest;
 import dispesas.com.dto.despesaDto.DespesasComParcelasEmAbertoDTO;
 import dispesas.com.model.Comprovante;
 import dispesas.com.model.Despesa;
-import dispesas.com.model.enumModel.Category;
-import dispesas.com.model.enumModel.PaymentMethod;
-import dispesas.com.model.enumModel.Status;
-import dispesas.com.model.enumModel.Type;
+import dispesas.com.model.enumModel.*;
 import dispesas.com.security.config.SecurityUtil;
 import dispesas.com.security.model.User;
 import dispesas.com.security.utilSecurity.GetUserById;
@@ -204,13 +201,14 @@ public class DespesaService {
             Category category,
             Status status,
             LocalDate dataInicio,
-            LocalDate dataFim
+            LocalDate dataFim,
+            OrdenacaoDespesa ordenacaoDespesa
     ) {
 
         Long userId = getUserById.getUserById().getId();
 
         return despesaRepository
-                .findAll(DespesaSpecification.filtrar(userId, type, category, status, dataInicio, dataFim))
+                .findAll(DespesaSpecification.filtrar(userId, type, category, status, dataInicio, dataFim, ordenacaoDespesa))
                 .stream()
                 .map(this::toResponse)
                 .toList();

@@ -25,6 +25,8 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
 
     boolean existsByIdAndUserId(Long id, Long userId);
 
+    Page<Despesa> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
     // Soma total por tipo em um mês/ano — só conta PAGO
     @Query("""
         SELECT COALESCE(SUM(d.value), 0)
@@ -131,4 +133,7 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
     ORDER BY parcelas_pagas ASC
 """, nativeQuery = true)
     List<Object[]> despesasComParcelasEmAberto(@Param("userId") Long userId);
+
+
+
 }
