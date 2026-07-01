@@ -48,8 +48,8 @@ public class AuthController {
 
 
     @PostMapping("/solicitar-codigo")
-    public ResponseEntity<Void> solicitarCodigo(@RequestBody SolicitarCodigoDTO dto) {
-        userService.solicitarCodigoTrocaSenha(dto);
+    public ResponseEntity<Void> solicitarCodigo( ) {
+        userService.solicitarCodigoTrocaSenha();
         return ResponseEntity.noContent().build();
     }
 
@@ -60,12 +60,12 @@ public class AuthController {
     }
 
 
-
+/*
     @DeleteMapping("/usuario/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         userService.deletarUsuario(id);
         return ResponseEntity.noContent().build();
     }
 
-
+    */
 }
