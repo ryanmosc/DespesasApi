@@ -2,6 +2,20 @@ spring:
   application:
     name: despesas
 
+  mail:
+    host: mail.voluntariosdasaude.com.br
+    port: 465
+    username: contato@voluntariosdasaude.com.br
+    password: 1QMzQTK]Od#5*L!7
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+    default-encoding: UTF-8
+    default-from: contato@voluntariosdasaude.com.br
+
   datasource:
     url: jdbc:postgresql://186.249.34.150:5432/despesas
     username: postgres
