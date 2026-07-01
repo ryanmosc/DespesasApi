@@ -60,12 +60,12 @@ public class AuthController {
     }
 
 
-/*
+
     @DeleteMapping("/usuario/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         userService.deletarUsuario(id);
         return ResponseEntity.noContent().build();
     }
 
-    */
+
 }
