@@ -5,6 +5,7 @@ import dispesas.com.dto.despesaDto.DespesaResponse;
 import dispesas.com.dto.despesaDto.DespesaUpdateRequest;
 import dispesas.com.dto.despesaDto.DespesasComParcelasEmAbertoDTO;
 import dispesas.com.model.enumModel.Category;
+import dispesas.com.model.enumModel.OrdenacaoDespesa;
 import dispesas.com.model.enumModel.Status;
 import dispesas.com.model.enumModel.Type;
 import dispesas.com.service.DespesaService;
@@ -66,9 +67,10 @@ public class DespesaController {
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) LocalDate dataInicio,
-            @RequestParam(required = false) LocalDate dataFim
-    ) {
-        return ResponseEntity.ok(despesaService.filtrarDespesas(type, category, status, dataInicio, dataFim));
+            @RequestParam(required = false) LocalDate dataFim,
+            @RequestParam(required = false) OrdenacaoDespesa ordenacaoDespesa
+            ) {
+        return ResponseEntity.ok(despesaService.filtrarDespesas(type, category, status, dataInicio, dataFim, ordenacaoDespesa));
     }
 
     @PostMapping("/{id}/duplicar")
