@@ -63,12 +63,12 @@ public class UserService {
 
     // PASSO 1 — usuário pede o código
     @Transactional
-    public void solicitarCodigoTrocaSenha(SolicitarCodigoDTO dto) {
+    public void solicitarCodigoTrocaSenha() {
         Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Erro: Usuário inválido"));
 
-        String codigo = genereteCode.gerarCodigoValidacao(dto.email());
+        String codigo = genereteCode.gerarCodigoValidacao(user.getEmailCandidato());
 
         CodigoVerificacao verificacao = new CodigoVerificacao();
         verificacao.setUserId(userId);
