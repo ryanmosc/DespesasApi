@@ -46,9 +46,26 @@ public class AuthController {
         ));
     }
 
+
+    @PostMapping("/solicitar-codigo")
+    public ResponseEntity<Void> solicitarCodigo( ) {
+        userService.solicitarCodigoTrocaSenha();
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/trocar-senha")
+    public ResponseEntity<Void> trocarSenha(@RequestBody ChangePasswordDTO dto) {
+        userService.changePassword(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+
+/*
     @DeleteMapping("/usuario/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         userService.deletarUsuario(id);
         return ResponseEntity.noContent().build();
     }
+
+    */
 }
