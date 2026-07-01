@@ -2,6 +2,7 @@ package dispesas.com.service;
 
 import dispesas.com.model.Despesa;
 import dispesas.com.model.enumModel.Category;
+import dispesas.com.model.enumModel.OrdenacaoDespesa;
 import dispesas.com.model.enumModel.Status;
 import dispesas.com.model.enumModel.Type;
 import jakarta.persistence.criteria.Predicate;
@@ -19,7 +20,8 @@ public class DespesaSpecification {
             Category category,
             Status status,
             LocalDate dataInicio,
-            LocalDate dataFim
+            LocalDate dataFim,
+            OrdenacaoDespesa ordenacaoDespesa
     ) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -43,6 +45,22 @@ public class DespesaSpecification {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("expenseDate"), dataInicio));
             else if (dataFim != null)
                 predicates.add(cb.lessThanOrEqualTo(root.get("expenseDate"), dataFim));
+
+            if (ordenacaoDespesa != null) {
+                switch (ordenacaoDespesa) {
+                    case MAIS_ANTIGAS ->
+                            query.orderBy(cb.asc(root.get("createdAt")));
+
+                    case MAIS_RECENTES ->
+                            query.orderBy(cb.desc(root.get("createdAt")));
+
+                    case MAIOR_VALOR ->
+                            query.orderBy(cb.desc(root.get("value")));
+
+                    case MENOR_VALOR ->
+                            query.orderBy(cb.asc(root.get("value")));
+                }
+            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
