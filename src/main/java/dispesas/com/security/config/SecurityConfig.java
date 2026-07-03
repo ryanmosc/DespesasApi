@@ -104,9 +104,9 @@ public class SecurityConfig {
                         // =============================================
                         // APORTE
                         // =============================================
-                        .requestMatchers(HttpMethod.POST, "/api/investimentos/{id}/aportes").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/investimentos/{id}/aportes").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/investimentos/aportes/{aporteId}").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/investimentos/*/aportes").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/investimentos/*/aportes").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/investimentos/aportes/*").authenticated()
 
 
 
