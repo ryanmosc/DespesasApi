@@ -4,8 +4,12 @@ import dispesas.com.Repository.AporteRepository;
 import dispesas.com.Repository.InvestimentoRepository;
 import dispesas.com.dto.aporteDTO.AporteRequest;
 import dispesas.com.dto.aporteDTO.AporteResponse;
+import dispesas.com.infra.exception.auth.UsuarioNaoAutenticadoException;
+import dispesas.com.infra.exception.geral.AcessoNegadoException;
+import dispesas.com.infra.exception.investimento.InvestimentoNaoEncontradoException;
 import dispesas.com.model.Aporte;
 import dispesas.com.model.Investimento;
+import dispesas.com.security.utilSecurity.GetUserById;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +23,7 @@ public class AporteService {
 
     private final AporteRepository aporteRepository;
     private final InvestimentoRepository investimentoRepository;
+    private final GetUserById getUserById;
 
     private AporteResponse toResponse(Aporte aporte) {
         return new AporteResponse(
@@ -33,6 +38,11 @@ public class AporteService {
     public AporteResponse registrarAporte(Long investimentoId, AporteRequest request) {
         Investimento investimento = investimentoRepository.findById(investimentoId)
                 .orElseThrow(() -> new EntityNotFoundException("Investimento não encontrado"));
+
+        Long userId = getUserById.getUserById().getId();
+        if (!userId.equals(investimento.getUsuario().getId())){
+            throw new AcessoNegadoException("Erro: Usuario não autenticado");
+        }
 
         Aporte aporte = new Aporte();
         aporte.setInvestimento(investimento);
@@ -49,6 +59,11 @@ public class AporteService {
     }
 
     public List<AporteResponse> listarAportesPorInvestimento(Long investimentoId) {
+        Investimento investimento = investimentoRepository.findById(investimentoId).orElseThrow(() -> new InvestimentoNaoEncontradoException("Erro: Investimento não encontrado"));
+        Long userId = getUserById.getUserById().getId();
+        if (!userId.equals(investimento.getUsuario().getId())){
+            throw new UsuarioNaoAutenticadoException("Erro: Usuario não autenticado");
+        }
         if (!investimentoRepository.existsById(investimentoId)) {
             throw new EntityNotFoundException("Investimento não encontrado");
         }
@@ -65,6 +80,10 @@ public class AporteService {
 
         // Remove o valor do aporte do valorAtual do investimento
         Investimento investimento = aporte.getInvestimento();
+        Long userId = getUserById.getUserById().getId();
+        if (!userId.equals(investimento.getUsuario().getId())){
+            throw new UsuarioNaoAutenticadoException("Erro: Usuario não autenticado");
+        }
         investimento.setValorAtual(investimento.getValorAtual().subtract(aporte.getValor()));
         investimentoRepository.save(investimento);
 
