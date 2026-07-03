@@ -3,17 +3,19 @@ package dispesas.com.service;
 import dispesas.com.Repository.DespesaRepository;
 import dispesas.com.Repository.UserRepository;
 import dispesas.com.dto.comprovanteDto.ComprovanteResponse;
-import dispesas.com.dto.despesaDto.DespesaResponse;
 import dispesas.com.dto.despesaDto.DespesaRequest;
+import dispesas.com.dto.despesaDto.DespesaResponse;
 import dispesas.com.dto.despesaDto.DespesaUpdateRequest;
 import dispesas.com.dto.despesaDto.DespesasComParcelasEmAbertoDTO;
+import dispesas.com.infra.exception.auth.UsuarioNaoAutenticadoException;
+import dispesas.com.infra.exception.despesa.DespesaNaoEncontradaException;
+import dispesas.com.infra.exception.geral.AcessoNegadoException;
 import dispesas.com.model.Comprovante;
 import dispesas.com.model.Despesa;
 import dispesas.com.model.enumModel.*;
 import dispesas.com.security.config.SecurityUtil;
 import dispesas.com.security.model.User;
 import dispesas.com.security.utilSecurity.GetUserById;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,7 +36,6 @@ public class DespesaService {
     private final GetUserById getUserById;
     private final UserRepository userRepository;
 
-
     private ComprovanteResponse toComprovanteResponse(Comprovante comprovante) {
         return new ComprovanteResponse(
                 comprovante.getId(),
@@ -45,7 +46,7 @@ public class DespesaService {
         );
     }
 
-    //Metodo auxiliar para conversão de entidade em response
+    // Metodo auxiliar para conversão de entidade em response
     private DespesaResponse toResponse(Despesa despesa) {
 
         List<ComprovanteResponse> comprovantes =
@@ -74,12 +75,15 @@ public class DespesaService {
 
     @Transactional
     public List<DespesaResponse> criarDespesa(DespesaRequest request) {
+
         User user = getUserById.getUserById();
 
-        // Sem parcelamento — salva normalmente
+        // Sem parcelamento
         if (request.installments() == null || request.installments() <= 1) {
+
             Despesa despesa = new Despesa(
-                    null, user,
+                    null,
+                    user,
                     request.description(),
                     request.value(),
                     request.type(),
@@ -87,14 +91,18 @@ public class DespesaService {
                     request.paymentMethod(),
                     request.status(),
                     request.expenseDate(),
-                    1, 1,
+                    1,
+                    1,
                     request.recurrent(),
-                    List.of(), null, null
+                    List.of(),
+                    null,
+                    null
             );
+
             return List.of(toResponse(despesaRepository.save(despesa)));
         }
 
-        // Parcelado — gera uma despesa por parcela
+        // Parcelado
         BigDecimal valorParcela = request.value().divide(
                 BigDecimal.valueOf(request.installments()),
                 2,
@@ -102,21 +110,27 @@ public class DespesaService {
         );
 
         List<Despesa> parcelas = new ArrayList<>();
+
         for (int i = 1; i <= request.installments(); i++) {
+
             Despesa parcela = new Despesa(
-                    null, user,
+                    null,
+                    user,
                     request.description() + " (" + i + "/" + request.installments() + ")",
                     valorParcela,
                     request.type(),
                     request.category(),
                     request.paymentMethod(),
-                    Status.PENDENTE,                          // sempre começa pendente
-                    request.expenseDate().plusMonths(i - 1), // incrementa mês
+                    Status.PENDENTE,
+                    request.expenseDate().plusMonths(i - 1),
                     request.installments(),
                     i,
                     request.recurrent(),
-                    List.of(), null, null
+                    List.of(),
+                    null,
+                    null
             );
+
             parcelas.add(parcela);
         }
 
@@ -126,27 +140,36 @@ public class DespesaService {
                 .toList();
     }
 
-    //Metodo para listar todas as despesas
+    // Listar todas
     public Page<DespesaResponse> listarDespesas(Pageable pageable) {
+
         Long userId = getUserById.getUserById().getId();
-        return despesaRepository.findByUserId(userId, pageable).map(this::toResponse);
+
+        return despesaRepository
+                .findByUserId(userId, pageable)
+                .map(this::toResponse);
     }
 
-    //Metodo para listar despesas por ID
+    // Listar por ID
     public DespesaResponse listarDespesaId(Long id) {
+
         Long userId = getUserById.getUserById().getId();
+
         return despesaRepository.findByIdAndUserId(id, userId)
                 .map(this::toResponse)
-                .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+                .orElseThrow(() -> new DespesaNaoEncontradaException("Despesa não encontrada."));
     }
 
-
     @Transactional
-    //Metodo para atualizar uma despesa
     public void atualizarDespesa(Long id, DespesaUpdateRequest request) {
+
         Long userId = getUserById.getUserById().getId();
-        Despesa despesa = despesaRepository.findById(id).orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+
+        Despesa despesa = despesaRepository.findById(id)
+                .orElseThrow(() -> new DespesaNaoEncontradaException("Despesa não encontrada."));
+
         if (despesa.getUser().getId().equals(userId)) {
+
             if (request.description() != null)
                 despesa.setDescription(request.description());
 
@@ -175,27 +198,25 @@ public class DespesaService {
                 despesa.setRecurrent(request.recurrent());
 
             despesaRepository.save(despesa);
+
         } else {
-            throw new RuntimeException("Erro: Você não é dono desta despesa");
+            throw new AcessoNegadoException("Você não possui acesso a esta despesa.");
         }
-
-
     }
-
 
     @Transactional
     public void deletarDespesa(Long id) {
+
         Long userId = SecurityUtil.getCurrentUserId();
 
         if (!despesaRepository.existsByIdAndUserId(id, userId)) {
-            throw new EntityNotFoundException("Despesa não encontrada");
+            throw new DespesaNaoEncontradaException("Despesa não encontrada.");
         }
 
         despesaRepository.deleteByIdAndUserId(id, userId);
     }
 
-
-    //Filtros
+    // Filtros
     public List<DespesaResponse> filtrarDespesas(
             Type type,
             Category category,
@@ -208,27 +229,39 @@ public class DespesaService {
         Long userId = getUserById.getUserById().getId();
 
         return despesaRepository
-                .findAll(DespesaSpecification.filtrar(userId, type, category, status, dataInicio, dataFim, ordenacaoDespesa))
+                .findAll(
+                        DespesaSpecification.filtrar(
+                                userId,
+                                type,
+                                category,
+                                status,
+                                dataInicio,
+                                dataFim,
+                                ordenacaoDespesa
+                        )
+                )
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-
     @Transactional
     public DespesaResponse duplicarDespesa(Long idDespesa) {
+
         Long userId = getUserById.getUserById().getId();
-        Despesa despesa = despesaRepository.findById(idDespesa).orElseThrow(() -> new RuntimeException("Despesa não encontrada com o id"));
+
+        Despesa despesa = despesaRepository.findById(idDespesa)
+                .orElseThrow(() -> new DespesaNaoEncontradaException("Despesa não encontrada."));
 
         if (!despesa.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Erro: Candidato não é o correto");
+            throw new AcessoNegadoException("Você não possui acesso a esta despesa.");
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
+                .orElseThrow(() -> new UsuarioNaoAutenticadoException("Usuário não autenticado."));
 
         Despesa despesaDuplicada = new Despesa();
+
         despesaDuplicada.setUser(user);
         despesaDuplicada.setDescription(despesa.getDescription());
         despesaDuplicada.setValue(despesa.getValue());
@@ -243,12 +276,14 @@ public class DespesaService {
         despesaDuplicada.setComprovantes(new ArrayList<>());
 
         Despesa salva = despesaRepository.save(despesaDuplicada);
+
         return toResponse(salva);
     }
 
-
     public List<DespesasComParcelasEmAbertoDTO> despesasComParcelasEmAberto() {
+
         Long userId = getUserById.getUserById().getId();
+
         return despesaRepository.despesasComParcelasEmAberto(userId)
                 .stream()
                 .map(r -> new DespesasComParcelasEmAbertoDTO(

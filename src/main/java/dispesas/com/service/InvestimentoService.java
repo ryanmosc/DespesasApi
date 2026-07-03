@@ -4,6 +4,8 @@ import dispesas.com.Repository.InvestimentoRepository;
 import dispesas.com.Repository.UserRepository;
 import dispesas.com.dto.investimentoDto.InvestimentoResponse;
 import dispesas.com.dto.investimentoDto.InvestimentosRequest;
+import dispesas.com.infra.exception.geral.AcessoNegadoException;
+import dispesas.com.infra.exception.investimento.InvestimentoNaoEncontradoException;
 import dispesas.com.model.Investimento;
 import dispesas.com.model.enumModel.StatusInvestimento;
 import dispesas.com.security.model.User;
@@ -77,16 +79,16 @@ public class InvestimentoService {
         Long userId = getUserById.getUserById().getId();
         return investimentoRepository.findByIdAndUsuarioId(idInvestimento, userId)
                 .map(this::investimentoResponse)
-                .orElseThrow(() -> new RuntimeException("Investimento não encontrado"));
+                .orElseThrow(() ->  new InvestimentoNaoEncontradoException("Investimento não encontrado."));
     }
 
     @Transactional
     public void atualizarInvestimento(InvestimentosRequest request, Long investimentoId) {
-    Investimento investimento = investimentoRepository.findById(investimentoId).orElseThrow(() -> new RuntimeException("Erro: Investimento não encontrado"));
+    Investimento investimento = investimentoRepository.findById(investimentoId).orElseThrow(() ->  new InvestimentoNaoEncontradoException("Investimento não encontrado."));
     Long userId = getUserById.getUserById().getId();
 
     if (!investimento.getUsuario().getId().equals(userId)){
-        throw new RuntimeException("Erro: Usuario invalido");
+        throw new AcessoNegadoException("Você não possui acesso a este investimento.");
     }
 
     if (request.nome() != null) {
@@ -119,11 +121,11 @@ public class InvestimentoService {
 
   @Transactional
   public void modificarStatus(StatusInvestimento statusInvestimento, Long idInvestimento){
-      Investimento investimento = investimentoRepository.findById(idInvestimento).orElseThrow(() -> new RuntimeException("Erro: Investimento inexistente"));
+      Investimento investimento = investimentoRepository.findById(idInvestimento).orElseThrow(() -> new InvestimentoNaoEncontradoException("Investimento não encontrado."));
       Long userId = getUserById.getUserById().getId();
 
       if (!investimento.getUsuario().getId().equals(userId)){
-          throw new RuntimeException("Erro: Usuario invalido");
+          throw new AcessoNegadoException("Você não possui acesso a este investimento.");
       }
       investimento.setStatus(statusInvestimento);
       investimentoRepository.save(investimento);
