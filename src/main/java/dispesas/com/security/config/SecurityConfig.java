@@ -100,6 +100,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/auth/trocar-senha").authenticated()
 
 
+
+                        // =============================================
+                        // APORTE
+                        // =============================================
+                        .requestMatchers(HttpMethod.POST, "/api/investimentos/{id}/aportes").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/investimentos/{id}/aportes").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/investimentos/aportes/{aporteId}").authenticated()
+
+
+
                         // Qualquer outra rota não mapeada — bloqueia
                         // =============================================
                         .anyRequest().denyAll()
