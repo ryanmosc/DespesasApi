@@ -16,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
@@ -28,20 +30,35 @@ public class InvestimentoService {
     private final UserRepository userRepository;
 
 
-    private InvestimentoResponse investimentoResponse(Investimento investimento){
+    private InvestimentoResponse investimentoResponse(Investimento investimento) {
+
+        BigDecimal rendimentoAbsoluto = investimento.getValorAtual()
+                .subtract(investimento.getValorInicial());
+
+        BigDecimal rendimentoPercent = investimento.getValorInicial()
+                .compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO
+                : rendimentoAbsoluto
+                .divide(investimento.getValorInicial(), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(2, RoundingMode.HALF_UP);
+
         return new InvestimentoResponse(
                 investimento.getId(),
                 investimento.getNome(),
                 investimento.getTipo(),
                 investimento.getValorInicial(),
                 investimento.getValorAtual(),
+                investimento.getTaxaRendimentoAnual(),
+                rendimentoAbsoluto,
+                rendimentoPercent,
                 investimento.getDataInicio(),
                 investimento.getDataVencimento(),
                 investimento.getInstituicao(),
                 investimento.getStatus(),
+                investimento.getUltimoRendimentoCalculado(),
                 investimento.getCriadoEm(),
                 investimento.getAtualizadoEm()
-
         );
     }
 
@@ -59,6 +76,8 @@ public class InvestimentoService {
                 request.dataInicio(),
                 request.dataVencimento(),
                 request.instituicao(),
+                request.taxaRendimentoAnual(),
+                null,
                 request.status(),
                 user,
                 request.criadoEm(),
@@ -112,6 +131,8 @@ public class InvestimentoService {
     if (request.instituicao() != null) {
         investimento.setInstituicao(request.instituicao());
     }
+    if (request.taxaRendimentoAnual() != null)
+            investimento.setTaxaRendimentoAnual(request.taxaRendimentoAnual());
     if (request.status() != null) {
         investimento.setStatus(request.status());
     }

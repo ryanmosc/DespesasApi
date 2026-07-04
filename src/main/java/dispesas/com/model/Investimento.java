@@ -46,6 +46,12 @@ public class Investimento {
     @Column(nullable = false)
     private String instituicao;
 
+    @Column(name = "taxa_rendimento_anual", precision = 8, scale = 4)
+    private BigDecimal taxaRendimentoAnual;
+
+    @Column(name = "ultimo_rendimento_calculado")
+    private LocalDateTime ultimoRendimentoCalculado;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusInvestimento status;
