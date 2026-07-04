@@ -13,10 +13,14 @@ public record InvestimentoResponse(
          TipoInvestimento tipo,
          BigDecimal valorInicial,
          BigDecimal valorAtual,
+        BigDecimal taxaRendimentoAnual,
+        BigDecimal rendimentoAbsoluto,
+        BigDecimal rendimentoPercent,
          LocalDate dataInicio,
          LocalDate dataVencimento,
          String instituicao,
          StatusInvestimento status,
+        LocalDateTime ultimoRendimentoCalculado,
         LocalDateTime criadoEm,
         LocalDateTime atualizadoEm
 ) {

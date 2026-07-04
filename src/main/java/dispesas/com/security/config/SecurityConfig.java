@@ -107,6 +107,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/investimentos/{id}/aportes").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/investimentos/{id}/aportes").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/investimentos/aportes/{aporteId}").authenticated()
+                        // Liberar o endpoint de dev apenas em desenvolvimento
+                        .requestMatchers("/api/dev/**").hasRole("ADMIN")
 
 
 
