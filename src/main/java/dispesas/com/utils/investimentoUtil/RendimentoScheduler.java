@@ -1,4 +1,4 @@
-package dispesas.com.utils;
+package dispesas.com.utils.investimentoUtil;
 
 import dispesas.com.Repository.InvestimentoRepository;
 import dispesas.com.model.Investimento;
