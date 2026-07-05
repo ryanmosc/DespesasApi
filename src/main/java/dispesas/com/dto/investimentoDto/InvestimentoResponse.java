@@ -13,7 +13,7 @@ public record InvestimentoResponse(
          TipoInvestimento tipo,
          BigDecimal valorInicial,
          BigDecimal valorAtual,
-        BigDecimal taxaRendimentoAnual,
+        BigDecimal percentualCdi,
         BigDecimal rendimentoAbsoluto,
         BigDecimal rendimentoPercent,
          LocalDate dataInicio,

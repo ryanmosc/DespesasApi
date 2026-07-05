@@ -15,5 +15,6 @@ public interface InvestimentoRepository extends JpaRepository<Investimento, Long
     Optional<Investimento> findByIdAndUsuarioId(Long id, Long userId);
     void deleteByIdAndUsuarioId(Long id, Long userId);
     // Busca só investimentos ativos que têm taxa cadastrada
-    List<Investimento> findByStatusAndTaxaRendimentoAnualIsNotNull(StatusInvestimento status);
+    List<Investimento> findByStatus(StatusInvestimento status);
+    List<Investimento> findByStatusAndPercentualCdiIsNotNull(StatusInvestimento status);
 }

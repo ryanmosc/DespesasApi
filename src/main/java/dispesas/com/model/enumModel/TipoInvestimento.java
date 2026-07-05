@@ -1,26 +1,20 @@
 package dispesas.com.model.enumModel;
 
 public enum TipoInvestimento {
-    TESOURO_DIRETO,
+
+    // Atrelados ao CDI — bot calcula via percentualCdi
     CDB,
     LCI,
     LCA,
-    DEBENTURE,
     CRI,
     CRA,
+    DEBENTURE,
     POUPANCA,
-    ACOES,
-    FIIS,
-    ETFS,
-    BDRS,
-    FUNDOS_DE_INVESTIMENTO,
-    CRIPTOMOEDAS,
-    IMOVEIS,
-    PREVIDENCIA_PRIVADA,
-    OURO,
-    PRATA,
-    COMMODITIES,
-    CAMBIO,
+    FUNDOS_DI,
     COE,
+
+    // Atrelados à Selic — bot calcula de forma aproximada via percentualCdi
+    TESOURO_SELIC,
+
     OUTROS
 }
