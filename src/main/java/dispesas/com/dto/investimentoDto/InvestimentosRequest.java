@@ -19,7 +19,7 @@ public record InvestimentosRequest(
         LocalDate dataVencimento,
         String instituicao,
         StatusInvestimento status,
-        BigDecimal taxaRendimentoAnual,
+        BigDecimal percentualCdi,
         Long usuarioId,
         LocalDateTime criadoEm,
         LocalDateTime atualizadoEm
