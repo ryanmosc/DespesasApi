@@ -49,7 +49,7 @@ public class InvestimentoService {
                 investimento.getTipo(),
                 investimento.getValorInicial(),
                 investimento.getValorAtual(),
-                investimento.getTaxaRendimentoAnual(),
+                investimento.getPercentualCdi(),
                 rendimentoAbsoluto,
                 rendimentoPercent,
                 investimento.getDataInicio(),
@@ -76,7 +76,7 @@ public class InvestimentoService {
                 request.dataInicio(),
                 request.dataVencimento(),
                 request.instituicao(),
-                request.taxaRendimentoAnual(),
+                request.percentualCdi(),
                 null,
                 request.status(),
                 user,
@@ -131,8 +131,8 @@ public class InvestimentoService {
     if (request.instituicao() != null) {
         investimento.setInstituicao(request.instituicao());
     }
-    if (request.taxaRendimentoAnual() != null)
-            investimento.setTaxaRendimentoAnual(request.taxaRendimentoAnual());
+    if (request.percentualCdi() != null)
+            investimento.setPercentualCdi(request.percentualCdi());
     if (request.status() != null) {
         investimento.setStatus(request.status());
     }
