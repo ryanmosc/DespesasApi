@@ -299,7 +299,8 @@ public class DespesaService {
 
     public List<DespesaResponse> autocomplete(String desc){
 
-        return despesaRepository.findByDescriptionStartingWithIgnoreCase(desc)
+        Long userId = getUserById.getUserById().getId();
+        return despesaRepository.findByDescriptionStartingWithIgnoreCaseAndUserId(desc, userId)
                 .stream().map(this::toResponse).toList();
     }
 }
