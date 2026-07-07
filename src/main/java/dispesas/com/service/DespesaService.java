@@ -296,4 +296,10 @@ public class DespesaService {
                 ))
                 .toList();
     }
+
+    public List<DespesaResponse> autocomplete(String desc){
+
+        return despesaRepository.findByDescriptionStartingWithIgnoreCase(desc)
+                .stream().map(this::toResponse).toList();
+    }
 }

@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/despesas/{id}").authenticated()
                         .requestMatchers(HttpMethod.GET,   "/api/despesas/filtrar").authenticated()
                         .requestMatchers(HttpMethod.GET,   "/api/despesas/parcelas-em-aberto").authenticated()
+                        .requestMatchers(HttpMethod.GET,   "/api/despesas/autocomplete/**").authenticated()
+
 
                         // =============================================
                         // COMPROVANTE — admin
