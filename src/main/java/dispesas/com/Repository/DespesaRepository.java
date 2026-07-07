@@ -27,6 +27,8 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
 
     Page<Despesa> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
+    List<Despesa> findByDescriptionStartingWithIgnoreCaseAndUserId(String desc, Long userId);
+
     // Soma total por tipo em um mês/ano — só conta PAGO
     @Query("""
         SELECT COALESCE(SUM(d.value), 0)

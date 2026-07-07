@@ -84,4 +84,8 @@ public class DespesaController {
         return ResponseEntity.ok(despesaService.despesasComParcelasEmAberto());
     }
 
+    @GetMapping("/autocomplete")
+    public ResponseEntity<List<DespesaResponse>> autocomplete(@RequestParam String desc){
+        return ResponseEntity.ok(despesaService.autocomplete(desc));
+    }
 }
