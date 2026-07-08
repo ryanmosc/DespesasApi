@@ -19,6 +19,8 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
 
     Page<Despesa> findByUserId(Long userId, Pageable pageable);
 
+    List<Despesa> findByUserId(Long userId);
+
     Optional<Despesa> findByIdAndUserId(Long id, Long userId);
 
     void deleteByIdAndUserId(Long id, Long userId);
