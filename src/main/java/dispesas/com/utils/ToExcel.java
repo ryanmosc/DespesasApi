@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -26,6 +27,20 @@ public class ToExcel {
         Long userId = getUserById.getUserById().getId();
 
         List<Despesa> despesas = despesaRepository.findByUserId(userId);
+
+        return gerarExcel(despesas);
+    }
+
+    public ByteArrayInputStream exportarPorPeriodo(LocalDate inicio, LocalDate fim) {
+
+        Long userId = getUserById.getUserById().getId();
+
+        List<Despesa> despesas =
+                despesaRepository.findByUserIdAndExpenseDateBetweenOrderByExpenseDateDesc(
+                        userId,
+                        inicio,
+                        fim
+                );
 
         return gerarExcel(despesas);
     }

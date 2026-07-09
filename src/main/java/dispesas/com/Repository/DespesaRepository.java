@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +31,13 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
     Page<Despesa> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
     List<Despesa> findByDescriptionStartingWithIgnoreCaseAndUserId(String desc, Long userId);
+
+    List<Despesa> findByUserIdAndExpenseDateBetweenOrderByExpenseDateDesc(
+            Long userId,
+            LocalDate dataInicial,
+            LocalDate dataFinal
+    );
+
 
     // Soma total por tipo em um mês/ano — só conta PAGO
     @Query("""
