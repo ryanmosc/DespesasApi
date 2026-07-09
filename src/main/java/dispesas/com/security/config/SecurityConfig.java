@@ -117,7 +117,16 @@ public class SecurityConfig {
 
 
 
+                        // =============================================
+                        // Excel
+                        // =============================================
+                        .requestMatchers(HttpMethod.GET, "/api/excel/despesas").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/excel/despesas/periodo").authenticated()
 
+
+
+
+                        // =============================================
                         // Qualquer outra rota não mapeada — bloqueia
                         // =============================================
                         .anyRequest().denyAll()
