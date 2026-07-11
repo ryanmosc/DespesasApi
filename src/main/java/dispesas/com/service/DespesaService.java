@@ -122,7 +122,7 @@ public class DespesaService {
                     request.category(),
                     request.paymentMethod(),
                     Status.PENDENTE,
-                    request.expenseDate().plusMonths(i - 1),
+                    request.expenseDate().plusMonths(i),
                     request.installments(),
                     i,
                     request.recurrent(),
