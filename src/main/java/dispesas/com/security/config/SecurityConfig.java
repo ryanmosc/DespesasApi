@@ -124,6 +124,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/excel/despesas/periodo").authenticated()
 
 
+                        // =============================================
+                        // Extrato
+                        // =============================================
+                        .requestMatchers(HttpMethod.GET, "/api/despesas/extrato").authenticated()
+
 
 
                         // =============================================

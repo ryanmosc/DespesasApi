@@ -1,6 +1,7 @@
 package dispesas.com.Repository;
 
 import dispesas.com.model.Despesa;
+import dispesas.com.model.enumModel.Status;
 import dispesas.com.model.enumModel.Type;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -148,4 +149,58 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long>, JpaSpec
 
 
 
+
+
+    @Query("""
+        SELECT d FROM Despesa d
+        WHERE d.user.id = :usuarioId
+        AND d.paymentMethod = 'CREDITO'
+        AND EXTRACT(MONTH FROM d.expenseDate) = :mes
+        AND EXTRACT(YEAR FROM d.expenseDate) = :ano
+        ORDER BY d.expenseDate ASC
+        """)
+    List<Despesa> findLancamentosCredito(
+            @Param("usuarioId") Long usuarioId,
+            @Param("mes") Integer mes,
+            @Param("ano") Integer ano
+    );
+
+
+    @Query("""
+        SELECT d FROM Despesa d
+        WHERE d.user.id = :usuarioId
+        AND d.paymentMethod = 'CREDITO'
+        AND d.status = 'PENDENTE'
+        AND d.installments > 1
+        AND (
+            EXTRACT(YEAR FROM d.expenseDate) > :ano
+            OR (
+                EXTRACT(YEAR FROM d.expenseDate) = :ano
+                AND EXTRACT(MONTH FROM d.expenseDate) > :mes
+            )
+        )
+        ORDER BY d.expenseDate ASC
+        """)
+    List<Despesa> findParcelasFuturas(
+            @Param("usuarioId") Long usuarioId,
+            @Param("mes") Integer mes,
+            @Param("ano") Integer ano
+    );
+
+
+    @Query("""
+        SELECT COALESCE(SUM(d.value), 0)
+        FROM Despesa d
+        WHERE d.user.id = :usuarioId
+        AND d.paymentMethod = 'CREDITO'
+        AND d.status = :status
+        AND EXTRACT(MONTH FROM d.expenseDate) = :mes
+        AND EXTRACT(YEAR FROM d.expenseDate) = :ano
+        """)
+    BigDecimal sumCreditoByStatus(
+            @Param("usuarioId") Long usuarioId,
+            @Param("status") Status status,
+            @Param("mes") Integer mes,
+            @Param("ano") Integer ano
+    );
 }
