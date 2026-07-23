@@ -128,6 +128,10 @@ public class SecurityConfig {
                         // Extrato
                         // =============================================
                         .requestMatchers(HttpMethod.GET, "/api/despesas/extrato").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/health").authenticated()
+
+
+                                       
 
 
 
