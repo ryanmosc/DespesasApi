@@ -17,9 +17,9 @@ spring:
     default-from: contato@voluntariosdasaude.com.br
 
   datasource:
-    url: jdbc:postgresql://186.249.34.150:5432/despesas
+    url: jdbc:postgresql://database-1-teste.cy30i8ueium0.us-east-1.rds.amazonaws.com:5432/dispesasdb
     username: postgres
-    password: q1w2e3
+    password: MudarSenha123**
     driver-class-name: org.postgresql.Driver
 
   jpa:

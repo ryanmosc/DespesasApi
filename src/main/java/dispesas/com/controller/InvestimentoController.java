@@ -4,6 +4,8 @@ import dispesas.com.dto.investimentoDto.InvestimentoResponse;
 import dispesas.com.dto.investimentoDto.InvestimentosRequest;
 import dispesas.com.model.enumModel.StatusInvestimento;
 import dispesas.com.service.InvestimentoService;
+import dispesas.com.utils.investimentoUtil.RendimentoScheduler;
+import dispesas.com.utils.investimentoUtil.RestApiCdi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InvestimentoController {
     private final InvestimentoService service;
+    private final RendimentoScheduler rendimentoScheduler;
+    private final RestApiCdi restApiCdi;
 
     @PostMapping
     public ResponseEntity<InvestimentoResponse> criarInvestimento(@RequestBody InvestimentosRequest request){
@@ -54,4 +58,8 @@ public class InvestimentoController {
         service.modificarStatus(statusInvestimento, id);
         return ResponseEntity.noContent().build();
     }
+
+
+
+
 }

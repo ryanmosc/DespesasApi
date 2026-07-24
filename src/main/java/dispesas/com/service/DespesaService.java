@@ -145,6 +145,7 @@ public class DespesaService {
 
         Long userId = getUserById.getUserById().getId();
 
+
         return despesaRepository
                 .findByUserId(userId, pageable)
                 .map(this::toResponse);

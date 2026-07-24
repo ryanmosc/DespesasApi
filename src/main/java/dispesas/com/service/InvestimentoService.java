@@ -157,4 +157,6 @@ public class InvestimentoService {
         Long userId = getUserById.getUserById().getId();
         investimentoRepository.deleteByIdAndUsuarioId(idInvestimento, userId);
   }
+
+
 }
