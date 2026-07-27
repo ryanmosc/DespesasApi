@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: api-despesas
+    networks:
+      - backenddespesas
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    restart: always
+
+
+networks:
+  backenddespesas:
+    driver: bridge
